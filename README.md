@@ -1,7 +1,7 @@
 ```mermaid
 erDiagram
-    AUTHOR one -- one or more QUOTE : has
-    QUOTE one -- zero or one SOURCE : from
-    AUTHOR one -- zero or more SOURCE : has
-    QUOTE one -- one or more CATEGORY : "relates to"
+    AUTHOR ||--|{ QUOTE : has
+    QUOTE ||--o| SOURCE : from
+    AUTHOR ||--o{ SOURCE : has
+    QUOTE ||--|{ CATEGORY : "relates to"
 ```
