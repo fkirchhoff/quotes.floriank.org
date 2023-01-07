@@ -1,7 +1,4 @@
 ```mermaid
----
-title: Quotes Entities
----
 erDiagram
     AUTHOR one -- one or more QUOTE : has
     QUOTE one -- zero or one SOURCE : from
