@@ -7,13 +7,13 @@ The motivation for this project is to get hands-on experience with AWS services.
 As stated above we will use DynamoDB to house our data. This [article](https://www.tecracer.com/blog/2021/03/modelling-a-product-catalog-in-dynamodb.html) mentions we should
 follow the advice from "[The DynamoDB book](https://www.dynamodbbook.com/)" to create our table:
 
-> * Understand your application
-> * Create an entity-relationship diagram (“ERD”)
-> * Write out all of your access patterns
-> * Model your primary key structure
-> * Satisfy additional access patterns with secondary indexes and streams
-> 
-> — Alex DeBrie, The DynamoDB Book - chapter 7.2
+&gt; * Understand your application
+&gt; * Create an entity-relationship diagram (“ERD”)
+&gt; * Write out all of your access patterns
+&gt; * Model your primary key structure
+&gt; * Satisfy additional access patterns with secondary indexes and streams
+&gt; 
+&gt; — Alex DeBrie, The DynamoDB Book - chapter 7.2
 
 ## Understand our application
 
@@ -54,10 +54,10 @@ erDiagram
 | --- | --- | --- | --- |
 | 1 | TAG | Get all | N/A  |
 | 2 | AUTHOR | Get all | N/A |
-| 3 | QUOTE | Get by id | <qid> |
-| 4 | QUOTE | List by tag | <tid> |
-| 5 | QUOTE | List by author | <aid> |
-| 6 | QUOTE | List by author and tag | <aid>+<tid> |
+| 3 | QUOTE | Get by id | &lt;qid&gt; |
+| 4 | QUOTE | List by tag | &lt;tid&gt; |
+| 5 | QUOTE | List by author | &lt;aid&gt; |
+| 6 | QUOTE | List by author and tag | &lt;aid&gt;+&lt;tid&gt; |
 
 ## Model your primary key structure
 We start by modeling the Tags and Authors:
@@ -71,6 +71,7 @@ We start by modeling the Tags and Authors:
 | AUTHORS | A#2 | AUTHOR | Homer Simpson |  |  2  |
 
 Next comes the Quotes, here is one transposed row:
+    
 | Attribute | Value |
 | --- | --- |
 | PK | Q#1 |
@@ -83,20 +84,22 @@ Next comes the Quotes, here is one transposed row:
     
 To list by tag we use a Global Secondary Index (GSI):
 | PK |	SK | type | GSI1PK | GSI1SK |
-| --- | --- | --- | --- |
-| Q#<qid> |	METADATA | QUOTE | T#<tid> | A#<aid>#Q#<qid> |
+| --- | --- | --- | --- | --- |
+| Q#&lt;qid&gt; |	METADATA | QUOTE | T#&lt;tid&gt; | A#&lt;aid&gt;#Q#&lt;qid&gt; |
 
 which allows to query by tag and by tag and author. 
 
 To search by author we use the a new GSI:
-| PK |	SK | type | GSI2PK | GSI2SK |
-| --- | --- | --- | --- |
-| Q#<qid> |	METADATA | QUOTE | A#<aid> | T#<tid>#Q#<qid> |
     
+| PK |	SK | type | GSI2PK | GSI2SK |
+| --- | --- | --- | --- | --- |
+| Q#&lt;qid&gt; |	METADATA | QUOTE | A#&lt;aid&gt; | T#&lt;tid&gt;#Q#&lt;qid&gt; |
+
 Final result:
+
 |Entity|PK|SK|GSI1PK|GSI1SK|GSI2PK|GSI2SK|
 | --- | --- | --- | --- | --- | --- | --- | 
-|Tag|TAGS|T#<tid>|||||
-|Author|AUTHORS|A#<cid>|||||
-|Quote|Q#<qid>|METADATA|T#<tid>|T#<tid>#Q#<qid>|A#<aid>|T#<tid>#Q#<qid>|
+|Tag|TAGS|T#&lt;tid&gt;|||||
+|Author|AUTHORS|A#&lt;cid&gt;|||||
+|Quote|Q#&lt;qid&gt;|METADATA|T#&lt;tid&gt;|T#&lt;tid&gt;#Q#&lt;qid&gt;|A#&lt;aid&gt;|T#&lt;tid&gt;#Q#&lt;qid&gt;|
     
