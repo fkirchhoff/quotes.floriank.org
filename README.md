@@ -7,13 +7,13 @@ The motivation for this project is to get hands-on experience with AWS services.
 As stated above we will use DynamoDB to house our data. This [article](https://www.tecracer.com/blog/2021/03/modelling-a-product-catalog-in-dynamodb.html) mentions we should
 follow the advice from "[The DynamoDB book](https://www.dynamodbbook.com/)" to create our table:
 
-&gt; * Understand your application
-&gt; * Create an entity-relationship diagram (“ERD”)
-&gt; * Write out all of your access patterns
-&gt; * Model your primary key structure
-&gt; * Satisfy additional access patterns with secondary indexes and streams
-&gt; 
-&gt; — Alex DeBrie, The DynamoDB Book - chapter 7.2
+> * Understand your application
+> * Create an entity-relationship diagram (“ERD”)
+> * Write out all of your access patterns
+> * Model your primary key structure
+> * Satisfy additional access patterns with secondary indexes and streams
+> 
+> — Alex DeBrie, The DynamoDB Book - chapter 7.2
 
 ## Understand our application
 
