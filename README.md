@@ -81,6 +81,8 @@ Next comes the Quotes, here is one transposed row:
 | quoteId | 1 |
 | author | William Shakespeare |
 | source | Hamlet |
+| authorId | 1 |
+
     
 To list by tag we use a Global Secondary Index (GSI):
 | PK |	SK | type | GSI1PK | GSI1SK |
