@@ -21,3 +21,17 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Large data files
+quotes_dataset.csv
+quotes_dataset.xlsx
+
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.backup_before_record_import
+
+# Misc
+.claude/
+out.txt
