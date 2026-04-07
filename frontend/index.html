@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Quotes</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Random Quotes</h1>
+    </header>
+
+    <section class="filters">
+      <div class="filter-group">
+        <label for="tag-filter">Filter by Tag</label>
+        <select id="tag-filter">
+          <option value="">All Tags</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="author-filter">Filter by Author</label>
+        <select id="author-filter">
+          <option value="">All Authors</option>
+        </select>
+      </div>
+      <button id="clear-filters" class="btn btn-secondary" title="Clear all filters">Clear Filters</button>
+    </section>
+
+    <section class="quote-display">
+      <blockquote id="quote-text">
+        <p>Click the button to get a random quote.</p>
+      </blockquote>
+      <cite id="quote-author"></cite>
+      <span id="quote-source"></span>
+      <div id="quote-tags" class="tags"></div>
+    </section>
+
+    <div class="actions">
+      <button id="new-quote" class="btn btn-primary">New Quote</button>
+    </div>
+
+    <div id="active-filters" class="active-filters"></div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
