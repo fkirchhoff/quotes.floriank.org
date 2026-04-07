@@ -1,0 +1,206 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  background-color: #f5f1eb;
+  color: #2c2c2c;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.container {
+  max-width: 640px;
+  width: 100%;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #555;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 140px;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+  margin-bottom: 0.3rem;
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #333;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: #8b7355;
+}
+
+/* Quote display */
+.quote-display {
+  background: #fff;
+  border-left: 4px solid #8b7355;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.quote-display.loading {
+  opacity: 0.5;
+}
+
+blockquote p {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: #333;
+}
+
+cite {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #666;
+  font-style: normal;
+}
+
+cite::before {
+  content: "\2014\00a0";
+}
+
+#quote-source {
+  font-size: 0.85rem;
+  color: #999;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+#quote-source:empty {
+  display: none;
+}
+
+.tags {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.5rem;
+  background: #f0ebe3;
+  color: #8b7355;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tag:hover {
+  background: #e5ddd2;
+}
+
+/* Buttons */
+.actions {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary {
+  background: #8b7355;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #74603f;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #888;
+  border: 1px solid #ccc;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.btn-secondary:hover {
+  background: #f0ebe3;
+}
+
+/* Active filters summary */
+.active-filters {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+@media (max-width: 480px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  blockquote p {
+    font-size: 1.1rem;
+  }
+}
