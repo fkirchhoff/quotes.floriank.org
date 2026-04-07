@@ -98,7 +98,7 @@ resource "aws_s3_object" "index" {
   key          = "index.html"
   source       = "${var.static_src}/index.html"
   content_type = "text/html"
-  etag         = "${md5(file("${var.static_src}/index.html"))}"
+  etag         = filemd5("${var.static_src}/index.html")
   acl          = "public-read"
 }
 
@@ -107,7 +107,7 @@ resource "aws_s3_object" "error" {
   key          = "error.html"
   source       = "${var.static_src}/error.html"
   content_type = "text/html"
-  etag         = "${md5(file("${var.static_src}/error.html"))}"
+  etag         = filemd5("${var.static_src}/error.html")
   acl          = "public-read"
 }
 
@@ -126,7 +126,7 @@ resource "aws_s3_object" "quotes_js" {
 
 
 
-resource "aws_s3_bucket_object" "dist" {
+resource "aws_s3_object" "dist" {
   for_each = fileset("../src/static/scripts", "*.js")
 
   bucket = aws_s3_bucket.bucket_quotes_floriank_org.id
