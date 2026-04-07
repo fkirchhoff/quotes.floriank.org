@@ -76,6 +76,7 @@ resource "aws_s3_bucket_policy" "bucket_policy_quotes_floriank_org" {
   bucket = aws_s3_bucket.bucket_quotes_floriank_org.id
   policy = templatefile("s3-policy.json", { bucket = var.bucket_name })
 }
+
 resource "aws_s3_bucket_website_configuration" "quotes_floriank_org" {
   bucket = aws_s3_bucket.bucket_quotes_floriank_org.bucket
 
@@ -90,7 +91,7 @@ resource "aws_s3_bucket_website_configuration" "quotes_floriank_org" {
 
 resource "aws_s3_bucket_acl" "public_acl" {
   bucket = aws_s3_bucket.bucket_quotes_floriank_org.id
-  acl = "public-read"
+  acl    = "public-read"
 }
 
 resource "aws_s3_object" "index" {
@@ -124,16 +125,14 @@ resource "aws_s3_object" "quotes_js" {
   acl          = "public-read"
 }
 
-
-
 resource "aws_s3_object" "dist" {
   for_each = fileset("../src/static/scripts", "*.js")
 
-  bucket = aws_s3_bucket.bucket_quotes_floriank_org.id
-  key    = "scripts/${each.value}"
-  source = "../src/static/scripts/${each.value}"
+  bucket       = aws_s3_bucket.bucket_quotes_floriank_org.id
+  key          = "scripts/${each.value}"
+  source       = "../src/static/scripts/${each.value}"
   content_type = "text/javascript"
-  etag   = filemd5("../src/static/scripts/${each.value}")
+  etag         = filemd5("../src/static/scripts/${each.value}")
   acl          = "public-read"
 }
 
