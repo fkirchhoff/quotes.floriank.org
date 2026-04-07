@@ -15,10 +15,10 @@ variable "static_src" {
 
 variable "hosted_zone_id" {
   default = "/hostedzone/Z0231779JWQR5OICZH9M"
-  type = string
+  type    = string
 }
 
-variable env_name {
+variable "env_name" {
   default = "prod"
-  type = string
+  type    = string
 }

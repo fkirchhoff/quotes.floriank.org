@@ -113,16 +113,16 @@ resource "aws_s3_object" "error" {
 }
 
 resource "aws_s3_object" "quotes_js" {
-  bucket       = aws_s3_bucket.bucket_quotes_floriank_org.id
-  key          = "quotes.js"
-  content      = templatefile("${var.static_src}/quotes.js.tftpl", {
+  bucket = aws_s3_bucket.bucket_quotes_floriank_org.id
+  key    = "quotes.js"
+  content = templatefile("${var.static_src}/quotes.js.tftpl", {
     lambda_url = aws_lambda_function_url.random-quote-function-url.function_url
   })
   content_type = "text/javascript"
-  etag         = md5(templatefile("${var.static_src}/quotes.js.tftpl", {
+  etag = md5(templatefile("${var.static_src}/quotes.js.tftpl", {
     lambda_url = aws_lambda_function_url.random-quote-function-url.function_url
   }))
-  acl          = "public-read"
+  acl = "public-read"
 }
 
 resource "aws_s3_object" "dist" {
