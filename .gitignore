@@ -35,3 +35,4 @@ terraform.tfstate.backup_before_record_import
 # Misc
 .claude/
 out.txt
+.secrets/
