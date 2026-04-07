@@ -1,0 +1,170 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deployment
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.2.0"
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Format Check
+        working-directory: terraform
+        run: terraform fmt -check
+
+  plan:
+    name: Terraform Plan
+    needs: validate
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.2.0"
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -out=tfplan -no-color
+
+      - name: Upload Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: terraform/tfplan
+          retention-days: 30
+
+  apply:
+    name: Deploy
+    needs: plan
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.outputs.outputs.website_url }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.2.0"
+
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: terraform
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply tfplan -no-color
+
+      - name: Get Terraform Outputs
+        id: outputs
+        working-directory: terraform
+        run: |
+          LAMBDA_URL=$(terraform output -raw lambda_function_url)
+          WEBSITE_URL=$(terraform output -raw website_endpoint)
+          echo "lambda_url=${LAMBDA_URL}" >> "$GITHUB_OUTPUT"
+          echo "website_url=${WEBSITE_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate quotes.js from template
+        run: |
+          sed "s|__LAMBDA_URL__|${{ steps.outputs.outputs.lambda_url }}|g" \
+            src/static/quotes.js.template > src/static/quotes.js
+
+      - name: Sync static assets to S3
+        run: |
+          aws s3 sync src/static/ s3://quotes.floriank.org/ \
+            --delete \
+            --content-type "text/html" \
+            --exclude "*" \
+            --include "*.html"
+          aws s3 sync src/static/ s3://quotes.floriank.org/ \
+            --delete \
+            --content-type "text/javascript" \
+            --exclude "*" \
+            --include "*.js"
+
+  verify:
+    name: Verify Deployment
+    needs: apply
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.2.0"
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Get Lambda URL
+        id: outputs
+        working-directory: terraform
+        run: |
+          LAMBDA_URL=$(terraform output -raw lambda_function_url)
+          echo "lambda_url=${LAMBDA_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Test Lambda endpoint
+        run: |
+          echo "Testing Lambda endpoint..."
+          curl -f "${{ steps.outputs.outputs.lambda_url }}" || exit 1
+          echo ""
+          echo "Testing tags endpoint..."
+          curl -f "${{ steps.outputs.outputs.lambda_url }}?action=tags" || exit 1
+          echo ""
+          echo "Testing authors endpoint..."
+          curl -f "${{ steps.outputs.outputs.lambda_url }}?action=authors" || exit 1
+
+      - name: Verify S3 assets
+        run: |
+          aws s3api head-object --bucket quotes.floriank.org --key index.html
+          aws s3api head-object --bucket quotes.floriank.org --key quotes.js
+          aws s3api head-object --bucket quotes.floriank.org --key error.html
+
+      - name: Deployment Summary
+        run: |
+          echo "Deployment successful!"
+          echo "Website: http://quotes.floriank.org"
+          echo "Lambda: ${{ steps.outputs.outputs.lambda_url }}"
