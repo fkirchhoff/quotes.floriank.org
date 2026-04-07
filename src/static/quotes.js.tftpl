@@ -1,0 +1,125 @@
+var LAMBDA_URL = '${lambda_url}';
+
+function getCookie(name) {
+    var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : '';
+}
+
+function setCookie(name, value) {
+    var expires = new Date(Date.now() + 30 * 864e5).toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + expires + ';path=/;SameSite=Lax';
+}
+
+function deleteCookie(name) {
+    document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax';
+}
+
+function getSelectedTag() {
+    return document.getElementById('tag-filter').value;
+}
+
+function getSelectedAuthor() {
+    return document.getElementById('author-filter').value;
+}
+
+function getQuote(id, subid) {
+    var params = new URLSearchParams();
+    var tagId = getSelectedTag();
+    var authorId = getSelectedAuthor();
+    if (tagId) params.set('tagId', tagId);
+    if (authorId) params.set('authorId', authorId);
+    var qs = params.toString();
+    var url = LAMBDA_URL + (qs ? '?' + qs : '');
+
+    fetch(url)
+        .then(function(data) { return data.json(); })
+        .then(function(res) {
+            var quote = '"' + res.quote + '"';
+            document.getElementById(id).innerHTML = quote;
+            var author = 'By ' + res.author;
+            if (res.source && res.source.length > 0) {
+                author += " in '" + res.source + "'";
+            }
+            document.getElementById(subid).innerHTML = author;
+        })
+        .catch(function(error) { console.log(error); });
+}
+
+function loadTags() {
+    fetch(LAMBDA_URL + '?action=tags')
+        .then(function(data) { return data.json(); })
+        .then(function(tags) {
+            var select = document.getElementById('tag-filter');
+            tags.sort(function(a, b) { return a.name.localeCompare(b.name); });
+            tags.forEach(function(t) {
+                var opt = document.createElement('option');
+                opt.value = t.tagId;
+                opt.textContent = t.name;
+                select.appendChild(opt);
+            });
+            var saved = getCookie('selectedTag');
+            if (saved) select.value = saved;
+        })
+        .catch(function(error) { console.log(error); });
+}
+
+function loadAuthors() {
+    fetch(LAMBDA_URL + '?action=authors')
+        .then(function(data) { return data.json(); })
+        .then(function(authors) {
+            var select = document.getElementById('author-filter');
+            authors.sort(function(a, b) { return a.name.localeCompare(b.name); });
+            authors.forEach(function(a) {
+                var opt = document.createElement('option');
+                opt.value = a.authorId;
+                opt.textContent = a.name;
+                select.appendChild(opt);
+            });
+            var saved = getCookie('selectedAuthor');
+            if (saved) select.value = saved;
+        })
+        .catch(function(error) { console.log(error); });
+}
+
+function onFilterChange() {
+    var tagId = getSelectedTag();
+    var authorId = getSelectedAuthor();
+
+    if (tagId) setCookie('selectedTag', tagId);
+    else deleteCookie('selectedTag');
+
+    if (authorId) setCookie('selectedAuthor', authorId);
+    else deleteCookie('selectedAuthor');
+
+    updateActiveFiltersLabel();
+    getQuote('quote', 'author');
+}
+
+function clearFilters() {
+    document.getElementById('tag-filter').value = '';
+    document.getElementById('author-filter').value = '';
+    deleteCookie('selectedTag');
+    deleteCookie('selectedAuthor');
+    updateActiveFiltersLabel();
+    getQuote('quote', 'author');
+}
+
+function updateActiveFiltersLabel() {
+    var parts = [];
+    var tagSelect = document.getElementById('tag-filter');
+    var authorSelect = document.getElementById('author-filter');
+    if (tagSelect.value) {
+        parts.push('tag: ' + tagSelect.options[tagSelect.selectedIndex].text);
+    }
+    if (authorSelect.value) {
+        parts.push('author: ' + authorSelect.options[authorSelect.selectedIndex].text);
+    }
+    document.getElementById('active-filters').textContent =
+        parts.length ? 'Filtering by ' + parts.join(' + ') : '';
+}
+
+function init() {
+    loadTags();
+    loadAuthors();
+    getQuote('quote', 'author');
+}
