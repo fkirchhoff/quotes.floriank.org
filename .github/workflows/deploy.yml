@@ -97,28 +97,7 @@ jobs:
         id: outputs
         working-directory: terraform
         run: |
-          LAMBDA_URL=$(terraform output -raw lambda_function_url)
-          WEBSITE_URL=$(terraform output -raw website_endpoint)
-          echo "lambda_url=${LAMBDA_URL}" >> "$GITHUB_OUTPUT"
-          echo "website_url=${WEBSITE_URL}" >> "$GITHUB_OUTPUT"
-
-      - name: Generate quotes.js from template
-        run: |
-          sed "s|__LAMBDA_URL__|${{ steps.outputs.outputs.lambda_url }}|g" \
-            src/static/quotes.js.template > src/static/quotes.js
-
-      - name: Sync static assets to S3
-        run: |
-          aws s3 sync src/static/ s3://quotes.floriank.org/ \
-            --delete \
-            --content-type "text/html" \
-            --exclude "*" \
-            --include "*.html"
-          aws s3 sync src/static/ s3://quotes.floriank.org/ \
-            --delete \
-            --content-type "text/javascript" \
-            --exclude "*" \
-            --include "*.js"
+          echo "website_url=$(terraform output -raw website_endpoint)" >> "$GITHUB_OUTPUT"
 
   verify:
     name: Verify Deployment
