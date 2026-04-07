@@ -13,7 +13,12 @@ provider "aws" {
   region = "us-east-2"
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 locals {
+  account_id                  = data.aws_caller_identity.current.account_id
+  region                      = data.aws_region.current.name
   function_name               = "random_quote"
   function_handler            = "lambda_handler"
   function_runtime            = "python3.9"
@@ -24,7 +29,7 @@ locals {
 
 resource "aws_lambda_function" "function" {
   function_name = "${local.function_name}-${var.env_name}"
-  handler       = local.function_handler
+  handler       = "${local.function_name}.${local.function_handler}"
   runtime       = local.function_runtime
   timeout       = local.function_timeout_in_seconds
 
@@ -58,6 +63,22 @@ resource "aws_iam_role" "function_role" {
           Service = "lambda.amazonaws.com"
         }
       },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "dynamo_access" {
+  name = "lambda_dynamo_access"
+  role = aws_iam_role.function_role.id # Links to your existing role
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = ["dynamodb:Query", "dynamodb:GetItem"]
+        Effect   = "Allow"
+        Resource = "arn:aws:dynamodb:${local.region}:${local.account_id}:table/quotes"
+      }
     ]
   })
 }
